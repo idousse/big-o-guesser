@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Big-O Guesser</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #fff;
+      color: #000;
+      font-family: Georgia, serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    #container {
+      width: 65%;
+      margin: 50px auto 80px;
+    }
+
+    @media (max-width: 900px) {
+      #container { width: 88%; }
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Intro ── */
+    #intro { text-align: center; }
+
+    h1 {
+      font-size: 2.6em;
+      font-weight: bold;
+      letter-spacing: -1px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 1em;
+      margin-bottom: 16px;
+      color: #000;
+    }
+
+    .rules {
+      font-size: 1em;
+      margin-bottom: 28px;
+      color: #000;
+      line-height: 1.7;
+    }
+
+    .mode-hint {
+      font-size: 1em;
+      color: #000;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      font-family: Georgia, serif;
+      font-size: 1em;
+      background: #fff;
+      color: #000;
+      border: 2px solid #000;
+      padding: 9px 22px;
+      cursor: pointer;
+      margin: 0 4px;
+    }
+    .btn:hover { background: #eee; }
+    .btn:active { background: #ccc; }
+
+
+    /* ── HUD ── */
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+      margin-bottom: 24px;
+    }
+
+    .hud-left { font-size: 1em; }
+    .hud-left strong { font-size: 1em; }
+
+    #timer {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 1em;
+      font-weight: bold;
+    }
+    #timer.warn   { color: #888; }
+    #timer.danger { color: #000; text-decoration: underline; }
+
+    .hud-right { font-size: 1em; text-align: right; }
+
+    #end-early-btn {
+      font-family: Georgia, serif;
+      font-size: 1em;
+      background: none;
+      border: 1px solid #000;
+      padding: 3px 10px;
+      cursor: pointer;
+      color: #000;
+      margin-left: 14px;
+      vertical-align: middle;
+    }
+    #end-early-btn:hover { background: #eee; }
+
+    /* ── Problem ── */
+    .problem-num {
+      font-size: 1em;
+      color: #888;
+      margin-bottom: 8px;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    pre {
+      background: #000;
+      color: #fff;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 1em;
+      line-height: 1.65;
+      padding: 18px 20px;
+      overflow-x: auto;
+      white-space: pre;
+      margin-bottom: 20px;
+      border: 2px solid #000;
+    }
+
+    /* syntax colours subtle, not rainbow */
+    .kw  { color: #ccc; }
+    .fn  { color: #fff; font-weight: bold; }
+    .cm  { color: #666; font-style: italic; }
+    .num { color: #ddd; }
+    .str { color: #bbb; }
+
+    /* ── Options ── */
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .opt-btn {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 1em;
+      font-weight: bold;
+      background: #fff;
+      color: #000;
+      border: 2px solid #000;
+      padding: 14px 10px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .opt-btn:hover:not(:disabled) { background: #eee; }
+    .opt-btn:disabled { cursor: default; }
+    .opt-btn.correct { background: #000; color: #fff; border-color: #000; }
+    .opt-btn.wrong   { background: #fff; color: #000; border-color: #000; text-decoration: line-through; }
+    .opt-btn.reveal  { border-style: dashed; }
+
+    .feedback {
+      font-size: 1em;
+      height: 24px;
+      margin-top: 8px;
+      font-family: 'Roboto Mono', monospace;
+    }
+    .feedback.ok  { color: #000; }
+    .feedback.bad { color: #000; }
+
+    /* ── End ── */
+    #end { }
+
+    .end-score-line {
+      font-size: 1em;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 16px;
+    }
+
+    .end-score-line span {
+      font-size: 2.4em;
+      font-weight: bold;
+    }
+
+    .stats {
+      display: flex;
+      gap: 40px;
+      margin-bottom: 20px;
+      font-size: 1em;
+    }
+    .stat-val { font-size: 1em; font-weight: bold; display: block; }
+
+    .grade {
+      margin-bottom: 28px;
+      font-style: italic;
+      color: #444;
+    }
+
+    /* ── Review ── */
+    .review-heading {
+      font-size: 1em;
+      font-weight: bold;
+      border-top: 2px solid #000;
+      padding-top: 22px;
+      margin-top: 8px;
+      margin-bottom: 18px;
+    }
+
+    .review-card {
+      border: 2px solid #000;
+      margin-bottom: 22px;
+    }
+
+    .review-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 12px;
+      border-bottom: 1px solid #000;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 1em;
+      background: #f5f5f5;
+    }
+
+    .verdict { display: flex; gap: 12px; }
+
+    .tag {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 1em;
+      padding: 1px 8px;
+      border: 1px solid #000;
+    }
+    .tag-wrong   { background: #fff; text-decoration: line-through; }
+    .tag-correct { background: #000; color: #fff; }
+
+    .review-code {
+      background: #000;
+      color: #fff;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 1em;
+      line-height: 1.6;
+      padding: 14px 18px;
+      overflow-x: auto;
+      white-space: pre;
+      border-bottom: 1px solid #000;
+    }
+
+    .review-expl {
+      padding: 12px 14px;
+      font-size: 1em;
+      line-height: 1.6;
+      color: #222;
+    }
+
+    .end-actions { margin-top: 36px; }
+
+    .all-correct {
+      font-style: italic;
+      color: #444;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+<div id="container">
+
+  <!-- Intro -->
+  <div id="intro" class="screen active">
+    <h1>Big-O Guesser</h1>
+    <p class="subtitle">How well do you know time complexity?</p>
+    <p class="rules">
+      Read the Python snippet, pick the worst-case time complexity.<br>
+      Mistakes are explained at the end.
+    </p>
+    <p class="mode-hint">Timed game: 3 minutes on the clock. Zen mode: no time limit, practice at your own pace.</p>
+    <button class="btn" id="start-btn">Timed Game</button>
+    <button class="btn" id="zen-btn">Zen Mode</button>
+  </div>
+
+  <!-- Game -->
+  <div id="game" class="screen">
+    <div class="hud">
+      <div class="hud-left">Score &nbsp;<strong id="score">0</strong></div>
+      <div>
+        <span id="timer">3:00</span>
+        <button id="end-early-btn">end game</button>
+      </div>
+      <div class="hud-right">Streak &nbsp;<strong id="streak">0</strong></div>
+    </div>
+
+    <div class="problem-num" id="problem-num">Problem 1</div>
+    <pre id="code-block"></pre>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- End -->
+  <div id="end" class="screen">
+    <div class="end-score-line">
+      Final score: <span id="end-score">0</span> points
+    </div>
+    <div class="stats">
+      <div><span class="stat-val" id="end-correct">0</span>correct</div>
+      <div><span class="stat-val" id="end-wrong">0</span>wrong</div>
+      <div><span class="stat-val" id="end-acc">0%</span>accuracy</div>
+    </div>
+    <p class="grade" id="grade"></p>
+
+    <div id="review-section"></div>
+
+    <div class="end-actions">
+      <button class="btn" id="play-again-btn">Play again</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const problems = [
+  // ══ O(1) ══
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def get_first(arr):
+    return arr[0]`,
+    explanation:"Array index access is a direct memory lookup. One step regardless of array size." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def is_even(n):
+    return n % 2 == 0`,
+    explanation:"A single modulo operation. Result doesn't depend on the magnitude of n." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def lookup(hashmap, key):
+    return hashmap[key]  # dict lookup`,
+    explanation:"Python dict lookup is O(1) average the hash maps the key to a bucket directly." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def swap(a, b):
+    a, b = b, a
+    return a, b`,
+    explanation:"A fixed number of assignments regardless of any input size." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n log n)"],
+    code:`def peek(stack):
+    return stack[-1]`,
+    explanation:"Accessing the last element of a Python list is O(1) lists are backed by arrays." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def area_of_circle(r):
+    return 3.14159 * r * r`,
+    explanation:"Two multiplications a fixed number of operations regardless of r's value." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def sum_1_to_n(n):
+    return n * (n + 1) // 2
+# Gauss's formula no loop!`,
+    explanation:"Closed-form Gauss formula. Three arithmetic ops, no iteration. Classic O(n) → O(1) trick." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def is_power_of_two(n):
+    return n > 0 and (n & (n - 1)) == 0`,
+    explanation:"Bit trick: powers of two have exactly one '1' bit. A single AND instruction O(1)." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def get_middle(lst):
+    return lst[len(lst) // 2]`,
+    explanation:"len() on a Python list is O(1) (stored as an attribute). Index access is also O(1)." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def push(stack, val):
+    stack.append(val)
+    return stack`,
+    explanation:"list.append() is amortized O(1). Python over-allocates so most appends avoid a copy." },
+
+  // ══ O(log n) ══
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(1)","O(n²)"],
+    code:`def binary_search(arr, target):
+    lo, hi = 0, len(arr) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if arr[mid] == target: return mid
+        elif arr[mid] < target: lo = mid + 1
+        else: hi = mid - 1
+    return -1`,
+    explanation:"Each iteration halves the search space. n → n/2 → … → 1 takes log₂(n) steps." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(n log n)","O(1)"],
+    code:`def power(base, exp):
+    if exp == 0: return 1
+    if exp % 2 == 0:
+        half = power(base, exp // 2)
+        return half * half
+    return base * power(base, exp - 1)`,
+    explanation:"Exponentiation by squaring halves the exponent on even cases. Recursion depth is O(log exp)." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(1)","O(n log n)"],
+    code:`def count_digits(n):
+    count = 0
+    while n > 0:
+        n //= 10
+        count += 1
+    return count`,
+    explanation:"Each iteration divides n by 10. A number n has floor(log₁₀n)+1 digits O(log n)." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(n²)","O(1)"],
+    code:`def bst_search(node, val):
+    if not node or node.val == val:
+        return node
+    if val < node.val:
+        return bst_search(node.left, val)
+    return bst_search(node.right, val)
+# Assume balanced BST`,
+    explanation:"Each call eliminates half the tree. Balanced BST height is log₂(n) O(log n)." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(n log n)","O(n²)"],
+    code:`def floor_log2(n):
+    result = 0
+    while n > 1:
+        n //= 2
+        result += 1
+    return result`,
+    explanation:"Repeatedly divides by 2. After k steps n becomes 1, so k = log₂(n)." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(1)","O(n log n)"],
+    code:`def gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+# Euclidean algorithm`,
+    explanation:"By Lamé's theorem, the Euclidean algorithm runs in at most 5× the digits of the smaller input O(log n)." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(n log n)","O(1)"],
+    code:`def find_pivot(arr):
+    lo, hi = 0, len(arr) - 1
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if arr[mid] > arr[hi]: lo = mid + 1
+        else: hi = mid
+    return lo`,
+    explanation:"Binary search on a rotated sorted array. Each step halves the search space O(log n)." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(1)","O(n²)"],
+    code:`def int_sqrt(n):
+    lo, hi = 0, n
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if mid * mid <= n: lo = mid
+        else: hi = mid - 1
+    return lo`,
+    explanation:"Binary search over [0, n]. The search space halves each iteration O(log n)." },
+
+  // ══ O(n) ══
+  { answer:"O(n)", options:["O(n)","O(1)","O(n²)","O(log n)"],
+    code:`def linear_search(arr, target):
+    for i, val in enumerate(arr):
+        if val == target:
+            return i
+    return -1`,
+    explanation:"Worst case: target not found we visit every element once. Exactly n comparisons." },
+
+  { answer:"O(n)", options:["O(n)","O(1)","O(n²)","O(n log n)"],
+    code:`def sum_array(arr):
+    total = 0
+    for x in arr:
+        total += x
+    return total`,
+    explanation:"One pass, one addition per element. Exactly n operations." },
+
+  { answer:"O(n)", options:["O(n)","O(1)","O(n²)","O(log n)"],
+    code:`def find_max(arr):
+    best = arr[0]
+    for x in arr[1:]:
+        if x > best: best = x
+    return best`,
+    explanation:"Must inspect every element. One pass, n-1 comparisons." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(log n)","O(n log n)"],
+    code:`def reverse(arr):
+    left, right = 0, len(arr) - 1
+    while left < right:
+        arr[left], arr[right] = arr[right], arr[left]
+        left += 1; right -= 1`,
+    explanation:"Two pointers doing n/2 swaps. Half of n is still O(n) constants are dropped." },
+
+  { answer:"O(n)", options:["O(n)","O(1)","O(n²)","O(log n)"],
+    code:`def has_duplicate(arr):
+    seen = set()
+    for x in arr:
+        if x in seen: return True
+        seen.add(x)
+    return False`,
+    explanation:"One pass; each set operation is O(1). Total: n × O(1) = O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(1)","O(log n)"],
+    code:`def fibonacci_iter(n):
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a`,
+    explanation:"Exactly n additions. Linear compare with the naive recursive version which is O(2ⁿ)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(log n)","O(n log n)"],
+    code:`def prefix_sums(arr):
+    result = [0] * (len(arr) + 1)
+    for i, x in enumerate(arr):
+        result[i + 1] = result[i] + x
+    return result`,
+    explanation:"Single pass, one addition each. Building the prefix array is O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(1)","O(n log n)"],
+    code:`def two_sum_hash(nums, target):
+    seen = {}
+    for i, x in enumerate(nums):
+        comp = target - x
+        if comp in seen: return [seen[comp], i]
+        seen[x] = i`,
+    explanation:"One pass; each dict lookup is O(1). Classic O(n) improvement over the O(n²) brute force." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(log n)","O(n log n)"],
+    code:`def kadane(arr):
+    max_sum = cur = arr[0]
+    for x in arr[1:]:
+        cur = max(x, cur + x)
+        max_sum = max(max_sum, cur)
+    return max_sum`,
+    explanation:"Single scan maintaining a running max. One pass → O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(1)","O(n log n)"],
+    code:`def two_separate_loops(arr):
+    for x in arr:    # O(n)
+        print(x)
+    for x in arr:    # O(n)
+        print(x * 2)
+# Not nested sequential`,
+    explanation:"O(n) + O(n) = O(2n) = O(n). Sequential loops add; only nested loops multiply." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(1)","O(log n)"],
+    code:`def longest_consecutive(nums):
+    s = set(nums)
+    best = 0
+    for n in s:
+        if n - 1 not in s:
+            cur, length = n, 1
+            while cur + 1 in s:
+                cur += 1; length += 1
+            best = max(best, length)
+    return best`,
+    explanation:"Despite the nested while, each element is visited at most twice total. Total work is O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(log n)","O(1)"],
+    code:`def move_zeros(arr):
+    pos = 0
+    for x in arr:
+        if x != 0:
+            arr[pos] = x; pos += 1
+    while pos < len(arr):
+        arr[pos] = 0; pos += 1`,
+    explanation:"At most two passes over the array. O(n) + O(n) = O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(n log n)","O(log n)"],
+    code:`def max_sliding_window_sum(arr, k):
+    window = sum(arr[:k])
+    best = window
+    for i in range(k, len(arr)):
+        window += arr[i] - arr[i - k]
+        best = max(best, window)
+    return best`,
+    explanation:"Initial sum is O(k), then slide once through the rest. Each step is O(1). Total O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(n log n)","O(log n)"],
+    code:`def run_length_encode(s):
+    result, i = [], 0
+    while i < len(s):
+        j = i
+        while j < len(s) and s[j] == s[i]:
+            j += 1
+        result.append((s[i], j - i))
+        i = j
+    return result`,
+    explanation:"Despite two while loops, j never goes backward every character is visited exactly once. O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(1)","O(n log n)"],
+    code:`def bfs(graph, start):
+    visited, queue = {start}, [start]
+    while queue:
+        node = queue.pop(0)
+        for nb in graph[node]:
+            if nb not in visited:
+                visited.add(nb); queue.append(nb)
+    return visited`,
+    explanation:"BFS visits each node and each edge once. O(V + E) linear in the size of the graph." },
+
+  // ══ O(n log n) ══
+  { answer:"O(n log n)", options:["O(n log n)","O(n²)","O(n)","O(log n)"],
+    code:`def merge_sort(arr):
+    if len(arr) <= 1: return arr
+    mid = len(arr) // 2
+    L = merge_sort(arr[:mid])
+    R = merge_sort(arr[mid:])
+    return merge(L, R)  # merge is O(n)`,
+    explanation:"T(n) = 2T(n/2) + O(n). By the Master Theorem: O(n log n). Log n levels, O(n) work each." },
+
+  { answer:"O(n log n)", options:["O(n log n)","O(n²)","O(n)","O(n³)"],
+    code:`import heapq
+
+def heap_sort(arr):
+    heapq.heapify(arr)           # O(n)
+    return [heapq.heappop(arr)   # O(log n) each
+            for _ in range(len(arr))]`,
+    explanation:"heapify is O(n). n heappop calls each cost O(log n). Total: O(n) + O(n log n) = O(n log n)." },
+
+  { answer:"O(n log n)", options:["O(n log n)","O(n²)","O(n)","O(log n)"],
+    code:`def sort_then_iterate(arr):
+    arr.sort()            # O(n log n)
+    result = []
+    for i in range(len(arr) - 1):
+        if arr[i] == arr[i+1]:
+            result.append(arr[i])
+    return result`,
+    explanation:"Python's Timsort is O(n log n). The O(n) scan afterwards doesn't change the dominant term." },
+
+  { answer:"O(n log n)", options:["O(n log n)","O(n)","O(n²)","O(2ⁿ)"],
+    code:`def count_inversions(arr):
+    if len(arr) <= 1: return arr, 0
+    mid = len(arr) // 2
+    L, lc = count_inversions(arr[:mid])
+    R, rc = count_inversions(arr[mid:])
+    merged, mc = merge_count(L, R)
+    return merged, lc + rc + mc`,
+    explanation:"Modified merge sort. Same recurrence: T(n) = 2T(n/2) + O(n) → O(n log n)." },
+
+  { answer:"O(n log n)", options:["O(n log n)","O(n²)","O(n)","O(n³)"],
+    code:`def closest_pair_1d(points):
+    points.sort()                # O(n log n)
+    min_dist = float('inf')
+    for i in range(len(points)-1):
+        min_dist = min(min_dist, points[i+1]-points[i])
+    return min_dist`,
+    explanation:"Sorting dominates at O(n log n). The final O(n) scan is a lower-order term." },
+
+  { answer:"O(n log n)", options:["O(n log n)","O(n²)","O(n)","O(log n)"],
+    code:`def log_inner(arr):
+    for i in range(len(arr)):   # O(n)
+        j = len(arr)
+        while j > 1:            # O(log n)
+            j //= 2
+            print(i, j)`,
+    explanation:"Outer loop runs n times; inner while halves j each time log n iterations. Total: O(n log n)." },
+
+  // ══ O(n²) ══
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(n - i - 1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]`,
+    explanation:"Two nested loops. Total comparisons: n(n-1)/2. That's O(n²)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def selection_sort(arr):
+    for i in range(len(arr)):
+        min_idx = i
+        for j in range(i + 1, len(arr)):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]`,
+    explanation:"For each position, scans the remaining unsorted portion. Total: n+(n-1)+…+1 = O(n²)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j+1] = arr[j]; j -= 1
+        arr[j+1] = key`,
+    explanation:"Worst case (reverse-sorted): each element shifts all the way. Shifts: 0+1+…+(n-1) = O(n²)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def all_pairs(arr):
+    pairs = []
+    for i in range(len(arr)):
+        for j in range(i + 1, len(arr)):
+            pairs.append((arr[i], arr[j]))
+    return pairs`,
+    explanation:"There are n(n-1)/2 unique pairs in n elements. Generating all of them is O(n²)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def two_sum_brute(nums, target):
+    for i in range(len(nums)):
+        for j in range(i + 1, len(nums)):
+            if nums[i] + nums[j] == target:
+                return [i, j]`,
+    explanation:"Checks all pairs O(n²). The hashmap solution solves this in O(n)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n log n)","O(n)","O(n³)"],
+    code:`def lcs(s, t):
+    n, m = len(s), len(t)
+    dp = [[0]*(m+1) for _ in range(n+1)]
+    for i in range(1, n+1):
+        for j in range(1, m+1):
+            if s[i-1]==t[j-1]: dp[i][j]=dp[i-1][j-1]+1
+            else: dp[i][j]=max(dp[i-1][j],dp[i][j-1])
+    return dp[n][m]`,
+    explanation:"Fills an n×m DP table. Each of the n×m cells is filled in O(1). Total: O(n²) if both strings have length n." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n log n)","O(n)","O(n³)"],
+    code:`def naive_string_search(text, pattern):
+    n, m = len(text), len(pattern)
+    for i in range(n - m + 1):
+        if text[i:i+m] == pattern:
+            return i
+    return -1`,
+    explanation:"Outer loop O(n); each slice comparison is O(m). Worst case O(n × m) O(n²) when m ≈ n." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n log n)","O(n)","O(n³)"],
+    code:`def max_subarray_brute(arr):
+    best = float('-inf')
+    n = len(arr)
+    for i in range(n):
+        total = 0
+        for j in range(i, n):
+            total += arr[j]
+            best = max(best, total)
+    return best`,
+    explanation:"Checks all O(n²) subarrays. Kadane's algorithm solves this in O(n)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n³)","O(n log n)"],
+    code:`def tricky_nested(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(i, n):  # starts at i, not 0
+            print(arr[i], arr[j])`,
+    explanation:"Even starting at i, total iterations are n(n+1)/2. The constant halving doesn't change the class still O(n²)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def rotate_matrix(matrix):
+    n = len(matrix)
+    for i in range(n):
+        for j in range(i, n):
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]`,
+    explanation:"Transposes an n×n matrix in-place. Must visit roughly n²/2 cells O(n²)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n log n)","O(n)","O(n³)"],
+    code:`def build_string_concat(arr):
+    result = ""
+    for s in arr:     # arr has n strings of length n
+        result += s   # creates a new string each time!
+    return result`,
+    explanation:"String concatenation creates a new string each time: 1+2+…+n² copies = O(n²). Use ''.join(arr) instead." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def has_common_element(A, B):
+    # A and B are unsorted lists of size n
+    for x in A:
+        for y in B:
+            if x == y: return True
+    return False`,
+    explanation:"Two nested loops over n elements each. O(n²). O(n) solution: convert one list to a set." },
+
+  // ══ O(n³) ══
+  { answer:"O(n³)", options:["O(n³)","O(n²)","O(n log n)","O(2ⁿ)"],
+    code:`def matrix_multiply(A, B):
+    n = len(A)
+    C = [[0]*n for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                C[i][j] += A[i][k] * B[k][j]
+    return C`,
+    explanation:"Three nested loops each running n times. Total: n³ operations. This is the naive matrix multiplication." },
+
+  { answer:"O(n³)", options:["O(n³)","O(n²)","O(n log n)","O(2ⁿ)"],
+    code:`def all_triplets(arr):
+    result = []
+    for i in range(len(arr)):
+        for j in range(i+1, len(arr)):
+            for k in range(j+1, len(arr)):
+                result.append((arr[i],arr[j],arr[k]))
+    return result`,
+    explanation:"There are C(n,3) = n(n-1)(n-2)/6 unique triplets O(n³)." },
+
+  { answer:"O(n³)", options:["O(n³)","O(n²)","O(n log n)","O(n⁴)"],
+    code:`def floyd_warshall(dist):
+    n = len(dist)
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                dist[i][j] = min(dist[i][j],
+                                 dist[i][k]+dist[k][j])
+    return dist`,
+    explanation:"Floyd-Warshall finds all-pairs shortest paths. Three nested loops over n vertices classic O(n³)." },
+
+  { answer:"O(n³)", options:["O(n³)","O(n²)","O(2ⁿ)","O(n log n)"],
+    code:`def three_sum_brute(nums):
+    n, res = len(nums), []
+    for i in range(n):
+        for j in range(i+1, n):
+            for k in range(j+1, n):
+                if nums[i]+nums[j]+nums[k]==0:
+                    res.append([nums[i],nums[j],nums[k]])
+    return res`,
+    explanation:"Checks all triplets O(n³). The optimised version sorts then uses two pointers for O(n²)." },
+
+  { answer:"O(n³)", options:["O(n³)","O(n²)","O(n log n)","O(2ⁿ)"],
+    code:`def max_rectangle_brute(matrix):
+    # n×n binary matrix
+    n, best = len(matrix), 0
+    for r1 in range(n):
+        for r2 in range(r1, n):
+            for c in range(n):
+                # compute column sums ...
+                best = max(best, 1)
+    return best`,
+    explanation:"Three nested loops over rows and columns of an n×n grid O(n³) brute force." },
+
+  // ══ O(2ⁿ) ══
+  { answer:"O(2ⁿ)", options:["O(2ⁿ)","O(n)","O(n²)","O(n!)"],
+    code:`def fib(n):
+    if n <= 1: return n
+    return fib(n-1) + fib(n-2)`,
+    explanation:"Each call spawns two more. The recursion tree has ~2ⁿ nodes. Memoization or iteration brings this to O(n)." },
+
+  { answer:"O(2ⁿ)", options:["O(2ⁿ)","O(n)","O(n²)","O(n!)"],
+    code:`def subsets(nums):
+    if not nums: return [[]]
+    rest = subsets(nums[1:])
+    return rest + [[nums[0]] + s for s in rest]`,
+    explanation:"A set of n elements has exactly 2ⁿ subsets. You can't do better since the output itself has 2ⁿ elements." },
+
+  { answer:"O(2ⁿ)", options:["O(2ⁿ)","O(n²)","O(n log n)","O(n!)"],
+    code:`def knapsack(weights, values, cap, n):
+    if n == 0 or cap == 0: return 0
+    if weights[n-1] > cap:
+        return knapsack(weights,values,cap,n-1)
+    return max(
+        values[n-1]+knapsack(weights,values,cap-weights[n-1],n-1),
+        knapsack(weights,values,cap,n-1)
+    )
+# no memoization`,
+    explanation:"Each item spawns two recursive calls (include or exclude). 2ⁿ leaves without memoization." },
+
+  { answer:"O(2ⁿ)", options:["O(2ⁿ)","O(n²)","O(n log n)","O(n!)"],
+    code:`def tower_of_hanoi(n, src, dst, aux):
+    if n == 0: return
+    tower_of_hanoi(n-1, src, aux, dst)
+    print(f"Move {src} → {dst}")
+    tower_of_hanoi(n-1, aux, dst, src)`,
+    explanation:"T(n) = 2T(n-1) + 1 solves to T(n) = 2ⁿ - 1 = O(2ⁿ). Moving n disks requires exactly 2ⁿ-1 moves." },
+
+  { answer:"O(2ⁿ)", options:["O(2ⁿ)","O(n!)", "O(n²)","O(n log n)"],
+    code:`def all_binary_strings(n, current=""):
+    if len(current) == n:
+        print(current); return
+    all_binary_strings(n, current + "0")
+    all_binary_strings(n, current + "1")`,
+    explanation:"There are 2ⁿ binary strings of length n. Each call branches into 2 the tree has 2ⁿ leaves." },
+
+  { answer:"O(2ⁿ)", options:["O(2ⁿ)","O(n²)","O(n log n)","O(n!)"],
+    code:`def count_paths(n):
+    # Paths from (0,0) to (n,n) going right/down
+    if n == 0: return 1
+    return count_paths(n-1) + count_paths(n-1)`,
+    explanation:"Two identical recursive calls each time: T(n) = 2T(n-1) → O(2ⁿ). DP gives O(n²)." },
+
+  // ══ O(n!) ══
+  { answer:"O(n!)", options:["O(n!)","O(2ⁿ)","O(n²)","O(n³)"],
+    code:`def permutations(arr):
+    if len(arr) <= 1: return [arr]
+    result = []
+    for i, x in enumerate(arr):
+        rest = arr[:i] + arr[i+1:]
+        for p in permutations(rest):
+            result.append([x] + p)
+    return result`,
+    explanation:"There are n! orderings of n elements. Generating all permutations is O(n!) the output alone is that large." },
+
+  { answer:"O(n!)", options:["O(n!)","O(2ⁿ)","O(n³)","O(n²)"],
+    code:`def tsp_brute(graph, visited, curr, n, cost, ans):
+    # Travelling Salesman brute force
+    if sum(visited) == n and graph[curr][0]:
+        ans[0] = min(ans[0], cost+graph[curr][0]); return
+    for i in range(n):
+        if not visited[i] and graph[curr][i]:
+            visited[i] = True
+            tsp_brute(graph,visited,i,n,cost+graph[curr][i],ans)
+            visited[i] = False`,
+    explanation:"TSP brute force tries every possible route. With n cities there are (n-1)! routes O(n!)." },
+
+  { answer:"O(n!)", options:["O(n!)","O(2ⁿ)","O(n²)","O(n³)"],
+    code:`def bogosort(arr):
+    import random
+    while not is_sorted(arr):
+        random.shuffle(arr)
+    return arr`,
+    explanation:"On average takes O(n!) shuffles (1 in n! permutations is sorted). Each check is O(n), so O(n × n!) = O(n!)." },
+
+  // ══ TRICKY ══
+  { answer:"O(n log n)", options:["O(n log n)","O(n²)","O(n)","O(log n)"],
+    code:`def quick_sort(arr):
+    if len(arr) <= 1: return arr
+    pivot = arr[len(arr) // 2]
+    left   = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right  = [x for x in arr if x > pivot]
+    return quick_sort(left) + middle + quick_sort(right)`,
+    explanation:"QuickSort average case: O(n log n). Balanced splits give log n levels of O(n) work each. Worst case (bad pivot) is O(n²)." },
+
+  { answer:"O(n)", options:["O(n)","O(n log n)","O(log n)","O(n²)"],
+    code:`def looks_like_nlogn(arr):
+    result = []
+    i = 0
+    while i < len(arr):       # up to n iterations
+        j = 0
+        while j < 10:         # always exactly 10
+            result.append(arr[i]); j += 1
+        i += 1
+    return result`,
+    explanation:"The inner loop runs exactly 10 times a constant, not a function of n. O(10n) = O(n)." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(1)","O(n log n)"],
+    code:`def looks_linear(n):
+    i = 1
+    while i < n:
+        i *= 2    # doubles each time!
+        print(i)`,
+    explanation:"i doubles each step: 1, 2, 4, …, n. After log₂(n) steps i reaches n. Multiplication in the loop = O(log n), not O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(1)","O(n²)","O(log n)"],
+    code:`def copy_list(arr):
+    return arr[:]   # slice copy`,
+    explanation:"A slice copies all n elements. Despite looking like a single operation, it's O(n)." },
+
+  { answer:"O(n log n)", options:["O(n log n)","O(n²)","O(n)","O(n³)"],
+    code:`def find_kth_largest(nums, k):
+    nums.sort()              # O(n log n)
+    return nums[-k]          # O(1)`,
+    explanation:"Sorting dominates O(n log n). The O(1) index access doesn't change the overall complexity." },
+];
+
+// ── state ──────────────────────────────────────────────────────────────────
+
+const TOTAL = 180;
+let secondsLeft, timer, order, idx, score, nCorrect, nWrong, streak, answered, missed;
+
+function shuffle(a) {
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+}
+
+function fmt(s) {
+  const m = Math.floor(s/60), sec = s%60;
+  return m + ':' + (sec<10?'0':'') + sec;
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── game ──────────────────────────────────────────────────────────────────
+
+let zenMode = false;
+
+function startGame(zen) {
+  zenMode = !!zen;
+  score=0; nCorrect=0; nWrong=0; streak=0; idx=0; missed=[];
+  order = [...Array(problems.length).keys()];
+  shuffle(order);
+  secondsLeft = TOTAL;
+  show('game');
+  updateHUD();
+  loadQ();
+  if (zenMode) {
+    document.getElementById('timer').textContent = '∞';
+    document.getElementById('timer').className = '';
+  } else {
+    timer = setInterval(() => {
+      secondsLeft--;
+      updateTimer();
+      if (secondsLeft <= 0) endGame();
+    }, 1000);
+  }
+}
+
+function updateTimer() {
+  if (zenMode) return;
+  const el = document.getElementById('timer');
+  el.textContent = fmt(secondsLeft);
+  el.className = secondsLeft <= 20 ? 'danger' : secondsLeft <= 45 ? 'warn' : '';
+}
+
+function updateHUD() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('streak').textContent = streak > 1 ? streak + '×' : streak;
+  updateTimer();
+}
+
+function loadQ() {
+  answered = false;
+  const p = problems[order[idx % problems.length]];
+  idx++;
+  document.getElementById('problem-num').textContent = 'Problem ' + idx;
+  document.getElementById('code-block').textContent = p.code;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+
+  const opts = [...p.options];
+  shuffle(opts);
+  const container = document.getElementById('options');
+  container.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.onclick = () => pick(btn, opt, p, container);
+    container.appendChild(btn);
+  });
+}
+
+function pick(btn, chosen, p, container) {
+  if (answered) return;
+  answered = true;
+  const ok = chosen === p.answer;
+  const fb = document.getElementById('feedback');
+
+  container.querySelectorAll('.opt-btn').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === p.answer) b.classList.add(ok ? 'correct' : 'reveal');
+  });
+
+  if (ok) {
+    streak++;
+    const bonus = streak >= 3 ? Math.floor(streak/3) : 0;
+    const pts = 1 + bonus;
+    score += pts;
+    nCorrect++;
+    fb.textContent = streak >= 3 ? '✓  correct  (+' + pts + ', streak ×' + streak + ')' : '✓  correct';
+    fb.className = 'feedback ok';
+  } else {
+    btn.classList.add('wrong');
+    streak = 0;
+    nWrong++;
+    missed.push({ p, chosen });
+    fb.textContent = '✗  wrong, answer is ' + p.answer;
+    fb.className = 'feedback bad';
+  }
+
+  updateHUD();
+  setTimeout(loadQ, 1500);
+}
+
+// ── end ──────────────────────────────────────────────────────────────────
+
+function endGame() {
+  clearInterval(timer);
+  show('end');
+
+  document.getElementById('end-score').textContent = score;
+  document.getElementById('end-correct').textContent = nCorrect;
+  document.getElementById('end-wrong').textContent = nWrong;
+  const total = nCorrect + nWrong;
+  const acc = total === 0 ? 0 : Math.round(nCorrect/total*100);
+  document.getElementById('end-acc').textContent = acc + '%';
+
+  const msgs = [
+    [90, 'Outstanding. You really know your Big-O.'],
+    [75, 'Good job. Solid understanding.'],
+    [55, 'Not bad. A few gaps worth reviewing.'],
+    [0,  'Keep at it. Time complexity takes practice.'],
+  ];
+  const g = total === 0 ? '' : msgs.find(([t]) => acc >= t)[1];
+  document.getElementById('grade').textContent = g;
+
+  const section = document.getElementById('review-section');
+  section.innerHTML = '';
+
+  if (missed.length === 0) return;
+
+  const heading = document.createElement('p');
+  heading.className = 'review-heading';
+  heading.textContent = 'Mistakes (' + missed.length + ')';
+  section.appendChild(heading);
+
+  missed.forEach(({ p, chosen }) => {
+    const card = document.createElement('div');
+    card.className = 'review-card';
+    card.innerHTML = `
+      <div class="review-card-top">
+        <span>python</span>
+        <div class="verdict">
+          <span class="tag tag-wrong">${chosen}</span>
+          <span class="tag tag-correct">${p.answer}</span>
+        </div>
+      </div>
+      <div class="review-code">${p.code}</div>
+      <div class="review-expl"><strong>Why ${p.answer}:</strong> ${p.explanation}</div>
+    `;
+    section.appendChild(card);
+  });
+}
+
+// ── wiring ──────────────────────────────────────────────────────────────────
+
+document.getElementById('start-btn').addEventListener('click', () => startGame(false));
+document.getElementById('zen-btn').addEventListener('click', () => startGame(true));
+document.getElementById('play-again-btn').addEventListener('click', () => show('intro'));
+document.getElementById('end-early-btn').addEventListener('click', endGame);
+</script>
+</body>
+</html>
