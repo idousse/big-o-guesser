@@ -936,6 +936,269 @@ def heap_sort(arr):
     nums.sort()              # O(n log n)
     return nums[-k]          # O(1)`,
     explanation:"Sorting dominates O(n log n). The O(1) index access doesn't change the overall complexity." },
+
+  // ── added batch ──
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def is_empty(stack):
+    return len(stack) == 0`,
+    explanation:"len() is O(1) on a Python list and the comparison is a single step. No iteration involved." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def average_of_two(a, b):
+    return (a + b) / 2`,
+    explanation:"Two arithmetic operations. The cost never depends on the values of a or b." },
+
+  { answer:"O(1)", options:["O(1)","O(n)","O(log n)","O(n²)"],
+    code:`def get_last_two(arr):
+    return arr[-2], arr[-1]`,
+    explanation:"Direct index access from the end of a list is O(1) in Python." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(1)","O(n²)"],
+    code:`def first_set_bit(n):
+    pos = 0
+    while (n & 1) == 0:
+        n >>= 1
+        pos += 1
+    return pos`,
+    explanation:"Each shift halves n. The loop runs at most log₂(n) times in the worst case." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(n log n)","O(1)"],
+    code:`def search_rotated(arr, target):
+    lo, hi = 0, len(arr) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if arr[mid] == target: return mid
+        if arr[lo] <= arr[mid]:
+            if arr[lo] <= target < arr[mid]: hi = mid - 1
+            else: lo = mid + 1
+        else:
+            if arr[mid] < target <= arr[hi]: lo = mid + 1
+            else: hi = mid - 1
+    return -1`,
+    explanation:"Binary search variant for a rotated sorted array. Still halves the search space each step O(log n)." },
+
+  { answer:"O(log n)", options:["O(log n)","O(n)","O(1)","O(n log n)"],
+    code:`def digital_root(n):
+    while n >= 10:
+        n = sum(int(d) for d in str(n))
+    return n`,
+    explanation:"Each pass roughly takes the log of the number of digits, and converges fast. Dominated by O(log n) for typical inputs." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(1)","O(log n)"],
+    code:`def count_negatives(arr):
+    count = 0
+    for x in arr:
+        if x < 0:
+            count += 1
+    return count`,
+    explanation:"A single pass through all n elements with a constant-time check each. O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(log n)","O(1)"],
+    code:`def is_palindrome(s):
+    left, right = 0, len(s) - 1
+    while left < right:
+        if s[left] != s[right]: return False
+        left += 1; right -= 1
+    return True`,
+    explanation:"Two pointers converge toward the middle, doing at most n/2 comparisons. O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(1)","O(n log n)"],
+    code:`def merge_two_sorted(a, b):
+    result, i, j = [], 0, 0
+    while i < len(a) and j < len(b):
+        if a[i] <= b[j]:
+            result.append(a[i]); i += 1
+        else:
+            result.append(b[j]); j += 1
+    result.extend(a[i:]); result.extend(b[j:])
+    return result`,
+    explanation:"Classic merge step. Each element from both lists is visited exactly once total O(n + m), which is O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(log n)","O(n log n)"],
+    code:`def flatten_linked_list(head):
+    result = []
+    node = head
+    while node:
+        result.append(node.val)
+        node = node.next
+    return result`,
+    explanation:"Traverses a linked list of n nodes once. Each step is O(1), total O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(1)","O(log n)"],
+    code:`def char_frequency(s):
+    freq = {}
+    for c in s:
+        freq[c] = freq.get(c, 0) + 1
+    return freq`,
+    explanation:"One pass over the string; dict get/set is O(1) average. Total O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(n log n)","O(1)"],
+    code:`def remove_duplicates_sorted(arr):
+    write = 1
+    for read in range(1, len(arr)):
+        if arr[read] != arr[write - 1]:
+            arr[write] = arr[read]
+            write += 1
+    return write`,
+    explanation:"Single pass with two pointers over an already-sorted array. O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(log n)","O(1)"],
+    code:`def max_depth(node):
+    if not node: return 0
+    return 1 + max(max_depth(node.left), max_depth(node.right))`,
+    explanation:"Visits every node in the tree exactly once. For n nodes, that's O(n) total work." },
+
+  { answer:"O(n log n)", options:["O(n log n)","O(n²)","O(n)","O(n³)"],
+    code:`def top_k_frequent(words, k):
+    from collections import Counter
+    counts = Counter(words)
+    return sorted(counts, key=counts.get, reverse=True)[:k]`,
+    explanation:"Counter build is O(n). The sort over up to n unique words is O(n log n), which dominates." },
+
+  { answer:"O(n log n)", options:["O(n log n)","O(n)","O(n²)","O(log n)"],
+    code:`def is_anagram_sort(s, t):
+    return sorted(s) == sorted(t)`,
+    explanation:"Sorting each string is O(n log n); comparing the sorted results is O(n). Sorting dominates." },
+
+  { answer:"O(n log n)", options:["O(n log n)","O(n²)","O(n)","O(n³)"],
+    code:`def median_of_array(arr):
+    arr = sorted(arr)
+    mid = len(arr) // 2
+    if len(arr) % 2 == 0:
+        return (arr[mid-1] + arr[mid]) / 2
+    return arr[mid]`,
+    explanation:"Sorting the array is O(n log n); the rest is O(1). Sorting is the bottleneck." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def is_sorted_brute(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(n):
+            if i < j and arr[i] > arr[j]:
+                return False
+    return True`,
+    explanation:"Nested loops comparing every pair regardless of position. O(n²), much worse than the O(n) single-pass check." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def print_multiplication_table(n):
+    for i in range(1, n + 1):
+        for j in range(1, n + 1):
+            print(i * j, end=" ")
+        print()`,
+    explanation:"Two nested loops, each running n times. n × n print statements O(n²)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def pairwise_distances(points):
+    n = len(points)
+    dists = []
+    for i in range(n):
+        for j in range(n):
+            if i != j:
+                dists.append(abs(points[i] - points[j]))
+    return dists`,
+    explanation:"Computes a distance for every ordered pair of n points. n × (n-1) operations O(n²)." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n)","O(n log n)","O(n³)"],
+    code:`def subset_sum_brute(arr, target):
+    n = len(arr)
+    for i in range(n):
+        total = 0
+        for j in range(i, n):
+            total += arr[j]
+            if total == target:
+                return True
+    return False`,
+    explanation:"Checks all contiguous subarrays — there are O(n²) of them, each summed incrementally in O(1) amortized." },
+
+  { answer:"O(n²)", options:["O(n²)","O(n log n)","O(n)","O(n³)"],
+    code:`def is_toeplitz_matrix(matrix):
+    rows, cols = len(matrix), len(matrix[0])
+    for r in range(rows):
+        for c in range(cols):
+            if r > 0 and c > 0 and matrix[r][c] != matrix[r-1][c-1]:
+                return False
+    return True`,
+    explanation:"Visits every cell of an n×n matrix once. If rows = cols = n, that's O(n²)." },
+
+  { answer:"O(n³)", options:["O(n³)","O(n²)","O(n log n)","O(2ⁿ)"],
+    code:`def transpose_and_multiply(A):
+    n = len(A)
+    AT = [[A[j][i] for j in range(n)] for i in range(n)]
+    result = [[0]*n for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                result[i][j] += A[i][k] * AT[k][j]
+    return result`,
+    explanation:"Transpose is O(n²), but the triple-nested multiplication loop dominates at O(n³)." },
+
+  { answer:"O(n³)", options:["O(n³)","O(n²)","O(2ⁿ)","O(n log n)"],
+    code:`def count_triangles(points):
+    n = len(points)
+    count = 0
+    for i in range(n):
+        for j in range(i+1, n):
+            for k in range(j+1, n):
+                count += 1  # assume always a valid triangle
+    return count`,
+    explanation:"Enumerates every triplet of points C(n,3) combinations, which is O(n³)." },
+
+  { answer:"O(2ⁿ)", options:["O(2ⁿ)","O(n²)","O(n log n)","O(n!)"],
+    code:`def is_subset_sum(arr, n, target):
+    if target == 0: return True
+    if n == 0: return False
+    if arr[n-1] > target:
+        return is_subset_sum(arr, n-1, target)
+    return (is_subset_sum(arr, n-1, target) or
+            is_subset_sum(arr, n-1, target - arr[n-1]))`,
+    explanation:"Each element branches into two recursive calls without memoization. The call tree has up to 2ⁿ leaves." },
+
+  { answer:"O(2ⁿ)", options:["O(2ⁿ)","O(n!)","O(n²)","O(n log n)"],
+    code:`def generate_parens(n, current="", open_n=0, close_n=0):
+    if len(current) == 2 * n:
+        print(current); return
+    generate_parens(n, current + "(", open_n+1, close_n)
+    generate_parens(n, current + ")", open_n, close_n+1)
+# without pruning invalid branches`,
+    explanation:"Without pruning, each position branches into 2 choices for 2n positions. O(2^(2n)) = O(4ⁿ), which is still exponential, captured here as O(2ⁿ) class." },
+
+  { answer:"O(n!)", options:["O(n!)","O(2ⁿ)","O(n²)","O(n³)"],
+    code:`def n_queens_count(n):
+    def solve(row, cols, diag1, diag2):
+        if row == n: return 1
+        count = 0
+        for col in range(n):
+            count += solve(row+1, cols, diag1, diag2)
+        return count
+    return solve(0, set(), set(), set())
+# unpruned brute force placement`,
+    explanation:"Without pruning invalid placements, this explores all n! orderings of queens across rows and columns." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(1)","O(log n)"],
+    code:`def rotate_array_right(arr, k):
+    k = k % len(arr)
+    return arr[-k:] + arr[:-k]`,
+    explanation:"Slicing and concatenating creates new lists covering all n elements once. O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(log n)","O(1)"],
+    code:`def find_missing_number(nums, n):
+    expected_sum = n * (n + 1) // 2
+    actual_sum = sum(nums)
+    return expected_sum - actual_sum`,
+    explanation:"sum() iterates over all n elements once. The rest is O(1) arithmetic. Total O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(n log n)","O(1)"],
+    code:`def valid_parentheses(s):
+    stack = []
+    pairs = {')':'(', ']':'[', '}':'{'}
+    for c in s:
+        if c in pairs.values():
+            stack.append(c)
+        elif c in pairs:
+            if not stack or stack.pop() != pairs[c]:
+                return False
+    return not stack`,
+    explanation:"Single pass through the string; each stack push/pop is O(1). Total O(n)." },
 ];
 
 // ── state ──────────────────────────────────────────────────────────────────
