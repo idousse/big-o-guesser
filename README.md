@@ -13,11 +13,11 @@ Inspired by [TeXnique](https://github.com/akshayravikumar/TeXnique).
 
 ## Coverage
 
-99 snippets spanning `O(1)`, `O(log n)`, `O(n)`, `O(n log n)`, `O(n²)`, `O(n³)`, `O(2ⁿ)`, and `O(n!)`, including a handful of deliberately tricky ones (loops that look worse than they are, and vice versa).
+100 snippets spanning `O(1)`, `O(log n)`, `O(n)`, `O(n log n)`, `O(n²)`, `O(n³)`, `O(2ⁿ)`, and `O(n!)`, including a handful of deliberately tricky ones (loops that look worse than they are, and vice versa).
 
 | Complexity | Count |
 |---|---|
-| O(n) | 27 |
+| O(n) | 28 |
 | O(n²) | 17 |
 | O(1) | 13 |
 | O(log n) | 12 |

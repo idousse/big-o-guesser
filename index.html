@@ -1108,7 +1108,7 @@ def heap_sort(arr):
             if total == target:
                 return True
     return False`,
-    explanation:"Checks all contiguous subarrays — there are O(n²) of them, each summed incrementally in O(1) amortized." },
+    explanation:"Checks all contiguous subarrays. There are O(n²) of them, each summed incrementally in O(1) amortized." },
 
   { answer:"O(n²)", options:["O(n²)","O(n log n)","O(n)","O(n³)"],
     code:`def is_toeplitz_matrix(matrix):
@@ -1199,6 +1199,16 @@ def heap_sort(arr):
                 return False
     return not stack`,
     explanation:"Single pass through the string; each stack push/pop is O(1). Total O(n)." },
+
+  { answer:"O(n)", options:["O(n)","O(n²)","O(log n)","O(1)"],
+    code:`def majority_element(nums):
+    count, candidate = 0, None
+    for x in nums:
+        if count == 0:
+            candidate = x
+        count += 1 if x == candidate else -1
+    return candidate`,
+    explanation:"Boyer-Moore voting algorithm. Single pass over n elements with O(1) work per step. Total O(n)." },
 ];
 
 // ── state ──────────────────────────────────────────────────────────────────
